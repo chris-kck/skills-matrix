@@ -16,7 +16,8 @@
     "typecheck": "tsc --noEmit",
     "db:start": "docker run -d --name neo4j -p7474:7474 -p7687:7687 -e NEO4J_AUTH=neo4j/password neo4j:latest",
     "db:stop": "docker stop neo4j && docker rm neo4j",
-    "db:setup": "ts-node src/server/db/setup-schema.ts"
+    "db:setup": "ts-node src/server/db/setup-schema.ts",
+    "db:migrate": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server/db/migrate.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
@@ -51,9 +52,9 @@
     "prisma": "^5.14.0",
     "tailwindcss": "^3.4.3",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.5.3",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.3"
   },
   "ct3aMetadata": {
     "initVersion": "7.38.1"
