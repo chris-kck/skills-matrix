@@ -11,20 +11,25 @@ export const postRouter = createTRPCRouter({
       };
     }),
 
+    testNeo4j: publicProcedure.mutation(async ({ ctx }) => {
+      const driver = ctx.db;
+      const session = driver().session();
+      try {
+        const result = await session.run('MATCH (n) RETURN count(n) as count');
+        return result.records;
+      } finally {
+        await session.close();
+      }
+    }),
+
   create: publicProcedure
     .input(z.object({ name: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      return ctx.db.post.create({
-        data: {
-          name: input.name,
-        },
-      });
+      return 1;
     }),
 
   getLatest: publicProcedure.query(async ({ ctx }) => {
-    const post = await ctx.db.post.findFirst({
-      orderBy: { createdAt: "desc" },
-    });
+    const post = { name: "ok" };
 
     return post ?? null;
   }),
