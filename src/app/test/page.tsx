@@ -1,14 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { api } from "~/trpc/react"
-import type { Node, Edge } from 'reactflow'
-import ReactFlow, { 
-  Background, 
-  Controls,
-  MarkerType,
-} from 'reactflow'
-import 'reactflow/dist/style.css'
+import dynamic from "next/dynamic"
 import { Button } from "~/components/ui/button"
 import { Input } from "~/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
@@ -22,7 +16,45 @@ import {
 } from "~/components/ui/table"
 import { Label } from "~/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
-import type { Employee, Skill } from "~/types"
+
+// Import ForceGraph2D dynamically to avoid SSR issues
+const ForceGraph2D = dynamic(() => import("react-force-graph-2d").catch(err => {
+  console.error("Failed to load ForceGraph2D:", err);
+  // Create a named component to fix the display name error
+  const FallbackComponent = () => <div>Failed to load graph visualization</div>;
+  FallbackComponent.displayName = "ForceGraphFallback";
+  return { default: FallbackComponent };
+}), { 
+  ssr: false,
+  loading: () => {
+    const LoadingComponent = () => (
+      <div className="flex items-center justify-center h-[600px] bg-gray-100 rounded-md">
+        Loading graph visualization...
+      </div>
+    );
+    LoadingComponent.displayName = "ForceGraphLoading";
+    return <LoadingComponent />;
+  }
+})
+
+// Define types for the graph data
+interface GraphNode {
+  id: string
+  name: string
+  group?: string
+}
+
+interface GraphLink {
+  source: string
+  target: string
+  value: number
+  label?: string
+}
+
+interface GraphData {
+  nodes: GraphNode[]
+  links: GraphLink[]
+}
 
 type FormSkill = {
   name: string
@@ -48,6 +80,7 @@ export default function TestPage() {
   const [newSkill, setNewSkill] = useState<FormSkill>({ name: '', category: '', description: '' })
   const [newEmployee, setNewEmployee] = useState<FormEmployee>({ name: '', role: '', email: '', department: '' })
   const [skillAssignment, setSkillAssignment] = useState<SkillAssignment>({ employeeId: '', skillId: '', level: 0 })
+  const [graphDataState, setGraphDataState] = useState<GraphData>({ nodes: [], links: [] })
 
   // Queries
   const { data: skills, refetch: refetchSkills } = api.skills.getAll.useQuery()
@@ -64,32 +97,36 @@ export default function TestPage() {
     onSuccess: () => refetchEmployees()
   })
 
-  // Graph data preparation
-  const nodes: Node[] = [
-    ...(employees?.map(emp => ({
-      id: emp.email,
-      data: { label: emp.name },
-      position: { x: Math.random() * 500, y: Math.random() * 500 },
-      type: 'default',
-    })) ?? []),
-    ...(skills?.map(skill => ({
-      id: skill.name,
-      data: { label: skill.name },
-      position: { x: Math.random() * 500, y: Math.random() * 500 },
-      type: 'default',
-      style: { background: '#f0f0f0' },
-    })) ?? []),
-  ]
+  // Update graph data when skills or employees change
+  useEffect(() => {
+    if (skills && employees) {
+      // Create nodes for employees and skills
+      const nodes: GraphNode[] = [
+        ...employees.map(emp => ({
+          id: emp.email,
+          name: emp.name,
+          group: 'employee'
+        })),
+        ...skills.map(skill => ({
+          id: skill.name,
+          name: skill.name,
+          group: 'skill'
+        }))
+      ]
 
-  const edges: Edge[] = employees?.flatMap(emp => 
-    emp.skills.map(skill => ({
-      id: `${emp.email}-${skill.name}`,
-      source: emp.email,
-      target: skill.name,
-      label: `${skill.level}%`,
-      markerEnd: { type: MarkerType.ArrowClosed },
-    }))
-  ) ?? []
+      // Create links between employees and their skills
+      const links: GraphLink[] = employees.flatMap(emp => 
+        emp.skills.map(skill => ({
+          source: emp.email,
+          target: skill.name,
+          value: skill.level,
+          label: `${skill.level}%`
+        }))
+      )
+
+      setGraphDataState({ nodes, links })
+    }
+  }, [skills, employees])
 
   return (
     <div className="container mx-auto p-4">
@@ -308,15 +345,24 @@ export default function TestPage() {
           <CardTitle>Skills Graph</CardTitle>
         </CardHeader>
         <CardContent>
-          <div style={{ height: '500px' }}>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              fitView
-            >
-              <Background />
-              <Controls />
-            </ReactFlow>
+          <div style={{ height: '600px' }}>
+            <Suspense fallback={<div className="flex items-center justify-center h-full bg-gray-100 rounded-md">Loading graph...</div>}>
+              {graphDataState.nodes.length > 0 ? (
+                <ForceGraph2D 
+                  graphData={graphDataState}
+                  nodeLabel="name"
+                  nodeAutoColorBy="group"
+                  linkDirectionalParticles={2}
+                  linkLabel="label"
+                  linkWidth={link => (link.value as number) / 20}
+                  linkDirectionalParticleWidth={link => (link.value as number) / 20}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full bg-gray-100 rounded-md">
+                  No data available for visualization
+                </div>
+              )}
+            </Suspense>
           </div>
         </CardContent>
       </Card>
