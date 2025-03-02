@@ -3,23 +3,41 @@
 import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
+import { api } from "~/trpc/react"
 
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d"), { ssr: false })
 
+// Define types for the graph data
+interface GraphNode {
+  id: string
+  name: string
+}
+
+interface GraphLink {
+  source: string
+  target: string
+  sharedSkills: string
+  strength: number
+}
+
+interface GraphData {
+  nodes: GraphNode[]
+  links: GraphLink[]
+}
+
 export default function TeamCollaboration() {
-  const [graphData, setGraphData] = useState({ nodes: [], links: [] })
+  const { data: graphData, isLoading } = api.employees.getTeamCollaboration.useQuery()
+  const [graphDataState, setGraphDataState] = useState<GraphData>({ nodes: [], links: [] })
 
   useEffect(() => {
-    // In a real application, you would fetch this data from your Neo4j database
-    const fetchGraphData = async () => {
-      // Simulated API call
-      const response = await fetch("/api/team-collaboration")
-      const data = await response.json()
-      setGraphData(data)
+    if (graphData) {
+      setGraphDataState(graphData)
     }
+  }, [graphData])
 
-    fetchGraphData()
-  }, [])
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div>
@@ -31,7 +49,7 @@ export default function TeamCollaboration() {
         <CardContent>
           <div style={{ height: "600px" }}>
             <ForceGraph2D
-              graphData={graphData}
+              graphData={graphDataState}
               nodeLabel="name"
               nodeAutoColorBy="team"
               linkDirectionalParticles={2}

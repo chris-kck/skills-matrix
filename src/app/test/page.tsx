@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { api } from "~/trpc/react"
+import type { Node, Edge } from 'reactflow'
 import ReactFlow, { 
   Background, 
   Controls,
@@ -21,12 +22,32 @@ import {
 } from "~/components/ui/table"
 import { Label } from "~/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
+import type { Employee, Skill } from "~/types"
+
+type FormSkill = {
+  name: string
+  category: string
+  description: string
+}
+
+type FormEmployee = {
+  name: string
+  role: string
+  email: string
+  department: string
+}
+
+type SkillAssignment = {
+  employeeId: string
+  skillId: string
+  level: number
+}
 
 export default function TestPage() {
   // Form states
-  const [newSkill, setNewSkill] = useState({ name: '', category: '', description: '' })
-  const [newEmployee, setNewEmployee] = useState({ name: '', role: '', email: '', department: '' })
-  const [skillAssignment, setSkillAssignment] = useState({ employeeId: '', skillId: '', level: 0 })
+  const [newSkill, setNewSkill] = useState<FormSkill>({ name: '', category: '', description: '' })
+  const [newEmployee, setNewEmployee] = useState<FormEmployee>({ name: '', role: '', email: '', department: '' })
+  const [skillAssignment, setSkillAssignment] = useState<SkillAssignment>({ employeeId: '', skillId: '', level: 0 })
 
   // Queries
   const { data: skills, refetch: refetchSkills } = api.skills.getAll.useQuery()
@@ -44,7 +65,7 @@ export default function TestPage() {
   })
 
   // Graph data preparation
-  const nodes = [
+  const nodes: Node[] = [
     ...(employees?.map(emp => ({
       id: emp.email,
       data: { label: emp.name },
@@ -60,8 +81,8 @@ export default function TestPage() {
     })) ?? []),
   ]
 
-  const edges = employees?.flatMap(emp => 
-    emp.skills.map((skill: { name: any; level: any }) => ({
+  const edges: Edge[] = employees?.flatMap(emp => 
+    emp.skills.map(skill => ({
       id: `${emp.email}-${skill.name}`,
       source: emp.email,
       target: skill.name,
@@ -88,21 +109,21 @@ export default function TestPage() {
                 <Label>Name</Label>
                 <Input 
                   value={newSkill.name} 
-                  onChange={e => setNewSkill(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setNewSkill(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
               <div>
                 <Label>Category</Label>
                 <Input 
                   value={newSkill.category} 
-                  onChange={e => setNewSkill(prev => ({ ...prev, category: e.target.value }))}
+                  onChange={(e) => setNewSkill(prev => ({ ...prev, category: e.target.value }))}
                 />
               </div>
               <div>
                 <Label>Description</Label>
                 <Input 
                   value={newSkill.description} 
-                  onChange={e => setNewSkill(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) => setNewSkill(prev => ({ ...prev, description: e.target.value }))}
                 />
               </div>
               <Button type="submit">Add Skill</Button>
@@ -125,14 +146,14 @@ export default function TestPage() {
                 <Label>Name</Label>
                 <Input 
                   value={newEmployee.name} 
-                  onChange={e => setNewEmployee(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
               <div>
                 <Label>Role</Label>
                 <Input 
                   value={newEmployee.role} 
-                  onChange={e => setNewEmployee(prev => ({ ...prev, role: e.target.value }))}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, role: e.target.value }))}
                 />
               </div>
               <div>
@@ -140,14 +161,14 @@ export default function TestPage() {
                 <Input 
                   type="email"
                   value={newEmployee.email} 
-                  onChange={e => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
                 />
               </div>
               <div>
                 <Label>Department</Label>
                 <Input 
                   value={newEmployee.department} 
-                  onChange={e => setNewEmployee(prev => ({ ...prev, department: e.target.value }))}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, department: e.target.value }))}
                 />
               </div>
               <Button type="submit">Add Employee</Button>
@@ -173,13 +194,13 @@ export default function TestPage() {
               <Label>Employee</Label>
               <Select 
                 value={skillAssignment.employeeId}
-                onValueChange={value => setSkillAssignment(prev => ({ ...prev, employeeId: value }))}
+                onValueChange={(value) => setSkillAssignment(prev => ({ ...prev, employeeId: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
-                  {employees?.map(emp => (
+                  {employees?.map((emp) => (
                     <SelectItem key={emp.email} value={emp.email}>
                       {emp.name}
                     </SelectItem>
@@ -191,13 +212,13 @@ export default function TestPage() {
               <Label>Skill</Label>
               <Select
                 value={skillAssignment.skillId}
-                onValueChange={value => setSkillAssignment(prev => ({ ...prev, skillId: value }))}
+                onValueChange={(value) => setSkillAssignment(prev => ({ ...prev, skillId: value }))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select skill" />
                 </SelectTrigger>
                 <SelectContent>
-                  {skills?.map(skill => (
+                  {skills?.map((skill) => (
                     <SelectItem key={skill.name} value={skill.name}>
                       {skill.name}
                     </SelectItem>
@@ -212,7 +233,7 @@ export default function TestPage() {
                 min={0}
                 max={100}
                 value={skillAssignment.level} 
-                onChange={e => setSkillAssignment(prev => ({ ...prev, level: parseInt(e.target.value) }))}
+                onChange={(e) => setSkillAssignment(prev => ({ ...prev, level: parseInt(e.target.value) }))}
               />
             </div>
             <Button type="submit">Assign Skill</Button>
@@ -236,7 +257,7 @@ export default function TestPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {skills?.map(skill => (
+                {skills?.map((skill) => (
                   <TableRow key={skill.name}>
                     <TableCell>{skill.name}</TableCell>
                     <TableCell>{skill.category}</TableCell>
@@ -263,13 +284,13 @@ export default function TestPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {employees?.map(emp => (
+                {employees?.map((emp) => (
                   <TableRow key={emp.email}>
                     <TableCell>{emp.name}</TableCell>
                     <TableCell>{emp.role}</TableCell>
                     <TableCell>{emp.email}</TableCell>
                     <TableCell>
-                      {emp.skills.map((skill: { name: any; level: any }) =>
+                      {emp.skills.map(skill => 
                         `${skill.name} (${skill.level}%)`
                       ).join(', ')}
                     </TableCell>

@@ -1,6 +1,12 @@
 import { getDriver } from "~/lib/neo4j"
+import type { Transaction } from "neo4j-driver"
 
 const MIGRATIONS_TABLE = 'migrations'
+
+interface Migration {
+  id: string
+  up: (tx: Transaction) => Promise<void>
+}
 
 async function ensureMigrationsTable() {
   const driver = getDriver()
@@ -40,7 +46,7 @@ async function getMigratedVersions() {
   }
 }
 
-async function markMigrationAsApplied(migrationId) {
+async function markMigrationAsApplied(migrationId: string) {
   const driver = getDriver()
   const session = driver.session()
 
@@ -58,7 +64,7 @@ async function markMigrationAsApplied(migrationId) {
   }
 }
 
-export async function deployMigration(migration) {
+export async function deployMigration(migration: Migration) {
   const driver = getDriver()
   const session = driver.session()
 
@@ -101,4 +107,4 @@ if (require.main === module) {
       process.exit(1)
     }
   })()
-}
+} 

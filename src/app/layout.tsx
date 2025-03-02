@@ -4,7 +4,6 @@ import { Inter } from "next/font/google"
 import "~/styles/globals.css"
 import { Sidebar } from "~/components/sidebar"
 import { TRPCReactProvider } from "~/trpc/react"
-import { headers } from "next/headers"
 
 const inter = Inter({
   subsets: ["latin"],

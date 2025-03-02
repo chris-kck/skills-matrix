@@ -1,14 +1,61 @@
+'use client'
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Progress } from "~/components/ui/progress"
+import { api } from "~/trpc/react"
 
-const teams = [
-  { name: "Frontend", skills: { React: 90, TypeScript: 85, CSS: 80 } },
-  { name: "Backend", skills: { Node: 95, Python: 85, SQL: 90 } },
-  { name: "DevOps", skills: { Docker: 85, Kubernetes: 80, AWS: 75 } },
-  { name: "Design", skills: { Figma: 90, Photoshop: 85, Illustrator: 80 } },
-]
+interface TeamSkill {
+  name: string
+  level: number
+}
+
+interface Team {
+  name: string
+  skills: TeamSkill[]
+}
 
 export default function TeamComparison() {
+  const [teams, setTeams] = useState<Team[]>([])
+  const { data: employees, isLoading } = api.employees.getAll.useQuery()
+
+  useEffect(() => {
+    if (employees) {
+      // Group employees by department and calculate average skill levels
+      const teamMap = new Map<string, Map<string, number[]>>()
+      
+      employees.forEach((employee) => {
+        const department = employee.department ?? 'Unassigned'
+        if (!teamMap.has(department)) {
+          teamMap.set(department, new Map())
+        }
+        
+        const skillMap = teamMap.get(department)!
+        employee.skills.forEach((skill) => {
+          if (!skillMap.has(skill.name)) {
+            skillMap.set(skill.name, [])
+          }
+          skillMap.get(skill.name)!.push(skill.level)
+        })
+      })
+
+      // Convert the map to the required format
+      const processedTeams: Team[] = Array.from(teamMap.entries()).map(([name, skillMap]) => ({
+        name,
+        skills: Array.from(skillMap.entries()).map(([skillName, levels]) => ({
+          name: skillName,
+          level: Math.round(levels.reduce((a, b) => a + b, 0) / levels.length)
+        }))
+      }))
+
+      setTeams(processedTeams)
+    }
+  }, [employees])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Team Comparison</h1>
@@ -19,13 +66,13 @@ export default function TeamComparison() {
               <CardTitle>{team.name} Team</CardTitle>
             </CardHeader>
             <CardContent>
-              {Object.entries(team.skills).map(([skill, level]) => (
-                <div key={skill} className="mb-4">
+              {team.skills.map((skill) => (
+                <div key={skill.name} className="mb-4">
                   <div className="flex justify-between mb-1">
-                    <span>{skill}</span>
-                    <span>{level}%</span>
+                    <span>{skill.name}</span>
+                    <span>{skill.level}%</span>
                   </div>
-                  <Progress value={level} className="w-full" />
+                  <Progress value={skill.level} className="w-full" />
                 </div>
               ))}
             </CardContent>

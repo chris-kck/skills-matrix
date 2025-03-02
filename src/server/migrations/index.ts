@@ -21,5 +21,8 @@ export async function runMigrations() {
 
 // Run migrations if this file is executed directly
 if (require.main === module) {
-  runMigrations()
+  void runMigrations().catch((error) => {
+    console.error("❌ Migration failed:", error)
+    process.exit(1)
+  })
 } 

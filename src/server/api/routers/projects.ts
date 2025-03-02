@@ -1,6 +1,29 @@
 import { z } from "zod"
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc"
-import { getDriver } from "~/lib/neo4j"
+import { getDriver, getFirstRecord } from "~/lib/neo4j"
+import type { Employee, Project, Skill } from "~/types"
+import type { Node as Neo4jNode } from "neo4j-driver"
+
+// Define a more specific type for Neo4j Node with properties
+interface NodeWithProperties extends Neo4jNode {
+  properties: Record<string, unknown>
+}
+
+const projectStatus = ['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD'] as const
+
+interface ProjectWithTeamAndSkills extends Project {
+  team: Array<{
+    employee: Employee
+    role: string
+    joinedAt: string
+  }>
+  requiredSkills: Array<{
+    skill: Skill
+    requiredLevel: number
+    name: string
+    category: string
+  }>
+}
 
 export const projectsRouter = createTRPCRouter({
   // Create a new project
@@ -10,7 +33,7 @@ export const projectsRouter = createTRPCRouter({
       description: z.string(),
       startDate: z.string(),
       endDate: z.string().optional(),
-      status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD']),
+      status: z.enum(projectStatus),
     }))
     .mutation(async ({ input }) => {
       const driver = getDriver()
@@ -34,7 +57,7 @@ export const projectsRouter = createTRPCRouter({
           )
         )
         
-        return result.records[0].get('p').properties
+        return getFirstRecord<Project>(result, 'p')
       } finally {
         await session.close()
       }
@@ -54,30 +77,35 @@ export const projectsRouter = createTRPCRouter({
           RETURN p,
                  collect(DISTINCT {
                    employee: e,
-                   role: w.role
+                   role: w.role,
+                   joinedAt: w.joinedAt
                  }) as team,
                  collect(DISTINCT {
                    skill: s,
-                   level: r.requiredLevel
+                   requiredLevel: r.requiredLevel
                  }) as requiredSkills
         `)
       )
       
-      return result.records.map(record => ({
-        ...record.get('p').properties,
-        team: record.get('team')
-          .filter((t: any) => t.employee)
-          .map((t: any) => ({
-            ...t.employee.properties,
-            projectRole: t.role
-          })),
-        requiredSkills: record.get('requiredSkills')
-          .filter((s: any) => s.skill)
-          .map((s: any) => ({
-            ...s.skill.properties,
-            requiredLevel: s.level
+      return result.records.map(record => {
+        const project = ((record.get('p') as NodeWithProperties).properties as unknown) as Project
+        const teamData = record.get('team') as Array<{ employee: Neo4jNode | null; role: string; joinedAt: string }>
+        const team = teamData
+          .filter((t) => t.employee)
+          .map((t) => ({
+            employee: ((t.employee as NodeWithProperties).properties as unknown) as Employee,
+            role: t.role,
+            joinedAt: t.joinedAt
           }))
-      }))
+        const skillsData = record.get('requiredSkills') as Array<{ skill: Neo4jNode | null; requiredLevel: number }>
+        const requiredSkills = skillsData
+          .filter((s) => s.skill)
+          .map((s) => ({
+            skill: ((s.skill as NodeWithProperties).properties as unknown) as Skill,
+            requiredLevel: s.requiredLevel
+          }))
+        return { ...project, team, requiredSkills } as ProjectWithTeamAndSkills
+      })
     } finally {
       await session.close()
     }
@@ -109,7 +137,16 @@ export const projectsRouter = createTRPCRouter({
           )
         )
         
-        return result.records[0].get('r').properties
+        const record = result.records[0]
+        if (!record) {
+          throw new Error('Failed to create team member relationship')
+        }
+
+        return {
+          employee: ((record.get('e') as NodeWithProperties).properties as unknown) as Employee,
+          project: ((record.get('p') as NodeWithProperties).properties as unknown) as Project,
+          relationship: ((record.get('r') as NodeWithProperties).properties as unknown) as { role: string; joinedAt: string }
+        }
       } finally {
         await session.close()
       }
@@ -141,7 +178,16 @@ export const projectsRouter = createTRPCRouter({
           )
         )
         
-        return result.records[0].get('r').properties
+        const record = result.records[0]
+        if (!record) {
+          throw new Error('Failed to create skill requirement')
+        }
+
+        return {
+          project: ((record.get('p') as NodeWithProperties).properties as unknown) as Project,
+          skill: ((record.get('s') as NodeWithProperties).properties as unknown) as Skill,
+          requirement: ((record.get('r') as NodeWithProperties).properties as unknown) as { requiredLevel: number; updatedAt: string }
+        }
       } finally {
         await session.close()
       }
@@ -151,7 +197,7 @@ export const projectsRouter = createTRPCRouter({
   updateStatus: publicProcedure
     .input(z.object({
       projectId: z.string(),
-      status: z.enum(['PLANNED', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD']),
+      status: z.enum(projectStatus),
     }))
     .mutation(async ({ input }) => {
       const driver = getDriver()
@@ -171,7 +217,7 @@ export const projectsRouter = createTRPCRouter({
           )
         )
         
-        return result.records[0].get('p').properties
+        return getFirstRecord<Project>(result, 'p')
       } finally {
         await session.close()
       }

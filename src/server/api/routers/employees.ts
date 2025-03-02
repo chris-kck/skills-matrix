@@ -1,14 +1,32 @@
 import { z } from "zod"
+import type { Node as Neo4jNode } from "neo4j-driver"
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc"
 import { getDriver, getFirstRecord } from "~/lib/neo4j"
+import type { Employee, Skill } from "~/types"
+
+// Define a more specific type for Neo4j Node with properties
+interface NodeWithProperties extends Neo4jNode {
+  properties: Record<string, unknown>
+}
+
+const roleTypes = ['technical', 'management', 'design', 'product'] as const
 
 const employeeInput = z.object({
   name: z.string(),
   role: z.string(),
   email: z.string().email(),
   department: z.string().optional(),
-  roleType: z.enum(['technical', 'management', 'design', 'product']).default('technical'),
+  roleType: z.enum(roleTypes).default('technical'),
 })
+
+interface EmployeeWithSkills extends Employee {
+  skills: Array<Skill & { level: number }>
+}
+
+interface SkillRelation {
+  skill: NodeWithProperties
+  level: number
+}
 
 export const employeesRouter = createTRPCRouter({
   // Create a new employee
@@ -36,7 +54,7 @@ export const employeesRouter = createTRPCRouter({
           )
         )
         
-        return getFirstRecord(result, 'e')
+        return getFirstRecord<Employee>(result, 'e')
       } finally {
         await session.close()
       }
@@ -56,15 +74,16 @@ export const employeesRouter = createTRPCRouter({
         `)
       )
       
-      return result.records.map(record => ({
-        ...record.get('e').properties,
-        skills: record.get('skills')
-          .filter((s: any) => s.skill)
-          .map((s: any) => ({
-            ...s.skill.properties,
+      return result.records.map(record => {
+        const employee = ((record.get('e') as NodeWithProperties).properties as unknown) as Employee
+        const skills = (record.get('skills') as SkillRelation[])
+          .filter(s => s.skill)
+          .map(s => ({
+            ...((s.skill.properties as unknown) as Skill),
             level: s.level
           }))
-      }))
+        return { ...employee, skills } as EmployeeWithSkills
+      })
     } finally {
       await session.close()
     }
@@ -72,7 +91,7 @@ export const employeesRouter = createTRPCRouter({
 
   // Get employees by role type
   getByRoleType: publicProcedure
-    .input(z.enum(['technical', 'management', 'design', 'product']))
+    .input(z.enum(roleTypes))
     .query(async ({ input }) => {
       const driver = getDriver()
       const session = driver.session()
@@ -88,15 +107,16 @@ export const employeesRouter = createTRPCRouter({
           )
         )
         
-        return result.records.map(record => ({
-          ...record.get('e').properties,
-          skills: record.get('skills')
-            .filter((s: any) => s.skill)
-            .map((s: any) => ({
-              ...s.skill.properties,
+        return result.records.map(record => {
+          const employee = ((record.get('e') as NodeWithProperties).properties as unknown) as Employee
+          const skills = (record.get('skills') as SkillRelation[])
+            .filter(s => s.skill)
+            .map(s => ({
+              ...((s.skill.properties as unknown) as Skill),
               level: s.level
             }))
-        }))
+          return { ...employee, skills } as EmployeeWithSkills
+        })
       } finally {
         await session.close()
       }
@@ -134,9 +154,9 @@ export const employeesRouter = createTRPCRouter({
         }
 
         return {
-          employee: record.get('e').properties,
-          skill: record.get('s').properties,
-          level: record.get('level')
+          employee: ((record.get('e') as NodeWithProperties).properties as unknown) as Employee,
+          skill: ((record.get('s') as NodeWithProperties).properties as unknown) as Skill,
+          level: record.get('level') as number
         }
       } finally {
         await session.close()
@@ -174,9 +194,9 @@ export const employeesRouter = createTRPCRouter({
         }
 
         return {
-          employee: record.get('e').properties,
-          skill: record.get('s').properties,
-          level: record.get('level')
+          employee: ((record.get('e') as NodeWithProperties).properties as unknown) as Employee,
+          skill: ((record.get('s') as NodeWithProperties).properties as unknown) as Skill,
+          level: record.get('level') as number
         }
       } finally {
         await session.close()
@@ -234,4 +254,46 @@ export const employeesRouter = createTRPCRouter({
         await session.close()
       }
     }),
+
+  // Get team collaboration data
+  getTeamCollaboration: publicProcedure.query(async () => {
+    const driver = getDriver()
+    const session = driver.session()
+    
+    try {
+      const result = await session.executeRead(tx =>
+        tx.run(`
+          MATCH (e1:Employee)-[:HAS_SKILL]->(s:Skill)<-[:HAS_SKILL]-(e2:Employee)
+          WHERE e1 <> e2
+          WITH e1, e2, COLLECT(s.name) AS sharedSkills
+          WHERE SIZE(sharedSkills) > 0
+          RETURN e1.name AS source, e2.name AS target, sharedSkills, SIZE(sharedSkills) AS strength
+        `)
+      )
+      
+      const nodes = new Set<string>()
+      const links = result.records.map((record) => {
+        const source = record.get("source") as string
+        const target = record.get("target") as string
+        nodes.add(source)
+        nodes.add(target)
+        return {
+          source,
+          target,
+          sharedSkills: (record.get("sharedSkills") as string[]).join(","),
+          strength: record.get("strength") as number,
+        }
+      })
+      
+      return {
+        nodes: Array.from(nodes).map((name) => ({ id: name, name })),
+        links,
+      }
+    } catch (error) {
+      console.error("Error fetching team collaboration data:", error)
+      throw error
+    } finally {
+      await session.close()
+    }
+  }),
 }) 

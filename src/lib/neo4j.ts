@@ -1,5 +1,11 @@
-import neo4j, { Driver } from 'neo4j-driver'
+import type { Driver, Node, Record as Neo4jRecord, Integer, QueryResult } from 'neo4j-driver'
+import neo4j from 'neo4j-driver'
 import { env } from '~/env'
+
+// Define a more specific type for Neo4j Node with properties
+interface NodeWithProperties extends Node {
+  properties: Record<string, unknown>
+}
 
 let driver: Driver | null = null
 
@@ -30,23 +36,33 @@ export const closeDriver = async () => {
   }
 }
 
-export type Neo4jRecord = {
-  id: string
-  properties: Record<string, any>
+export interface DbRecord {
+  id: Integer
+  properties: Record<string, unknown>
 }
 
-export const recordToObject = (record: any): Neo4jRecord => {
-  const node = record.get(0)
+export const recordToObject = (record: Neo4jRecord): DbRecord => {
+  const node = record.get(0) as NodeWithProperties
   return {
-    id: node.identity.toString(),
-    properties: node.properties,
+    id: node.identity,
+    properties: node.properties as Record<string, unknown>,
   }
 }
 
-export const getFirstRecord = (result: any, key: string) => {
-  const record = result.records[0]
+export const getFirstRecord = <T>(result: QueryResult, key: string): T => {
+  if (!result?.records) {
+    throw new Error(`No result found`)
+  }
+  
+  const [record] = result.records
   if (!record) {
     throw new Error(`No ${key} found`)
   }
-  return record.get(key).properties
+  
+  const node = record.get(key) as NodeWithProperties | null
+  if (!node?.properties) {
+    throw new Error(`Invalid ${key} record`)
+  }
+  
+  return node.properties as T
 } 

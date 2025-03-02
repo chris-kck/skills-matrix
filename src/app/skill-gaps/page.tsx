@@ -5,7 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Progress } from "~/components/ui/progress"
 
-const employees = [
+type SkillLevels = Record<string, number>
+
+interface Employee {
+  name: string
+  currentSkills: SkillLevels
+  targetSkills: SkillLevels
+}
+
+const employees: Employee[] = [
   {
     name: "Alice Johnson",
     currentSkills: { React: 90, TypeScript: 85, GraphQL: 70 },
@@ -19,12 +27,26 @@ const employees = [
 ]
 
 export default function SkillGaps() {
-  const [selectedEmployee, setSelectedEmployee] = useState(employees[0])
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(employees[0] ?? null)
+
+  const handleEmployeeChange = (value: string) => {
+    const employee = employees.find((e) => e.name === value)
+    setSelectedEmployee(employee ?? null)
+  }
+
+  if (employees.length === 0) {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold mb-6">Skill Gaps and Learning Paths</h1>
+        <p>No employees found.</p>
+      </div>
+    )
+  }
 
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Skill Gaps and Learning Paths</h1>
-      <Select onValueChange={(value) => setSelectedEmployee(employees.find((e) => e.name === value)!)}>
+      <Select onValueChange={handleEmployeeChange}>
         <SelectTrigger className="w-[280px] mb-6">
           <SelectValue placeholder="Select an employee" />
         </SelectTrigger>
@@ -36,31 +58,33 @@ export default function SkillGaps() {
           ))}
         </SelectContent>
       </Select>
-      <Card>
-        <CardHeader>
-          <CardTitle>{selectedEmployee.name}'s Skill Gaps</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {Object.entries(selectedEmployee.targetSkills).map(([skill, targetLevel]) => {
-            const currentLevel = selectedEmployee.currentSkills[skill] || 0
-            const gap = targetLevel - currentLevel
-            return (
-              <div key={skill} className="mb-4">
-                <div className="flex justify-between mb-1">
-                  <span>{skill}</span>
-                  <span>
-                    {currentLevel}% / {targetLevel}%
-                  </span>
+      {selectedEmployee && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{selectedEmployee.name}&apos;s Skill Gaps</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {Object.entries(selectedEmployee.targetSkills).map(([skill, targetLevel]) => {
+              const currentLevel = selectedEmployee.currentSkills[skill] ?? 0
+              const gap = targetLevel - currentLevel
+              return (
+                <div key={skill} className="mb-4">
+                  <div className="flex justify-between mb-1">
+                    <span>{skill}</span>
+                    <span>
+                      {currentLevel}% / {targetLevel}%
+                    </span>
+                  </div>
+                  <Progress value={currentLevel} max={targetLevel} className="w-full" />
+                  {gap > 0 && (
+                    <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Gap: {gap}% - Recommended for learning</p>
+                  )}
                 </div>
-                <Progress value={currentLevel} max={targetLevel} className="w-full" />
-                {gap > 0 && (
-                  <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Gap: {gap}% - Recommended for learning</p>
-                )}
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
+              )
+            })}
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

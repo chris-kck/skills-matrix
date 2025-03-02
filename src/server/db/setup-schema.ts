@@ -1,13 +1,39 @@
-import { setupSchema } from './schema';
-import { closeDb } from './db';
+import { getDriver } from "~/lib/neo4j"
 
-async function main() {
+export async function setupSchema() {
+  const driver = getDriver()
+  const session = driver.session()
+
   try {
-    await setupSchema();
-    await closeDb();
-    process.exit(0);
+    // Create constraints
+    await session.executeWrite(tx => tx.run(`
+      CREATE CONSTRAINT IF NOT EXISTS FOR (e:Employee)
+      REQUIRE e.email IS UNIQUE
+    `))
+
+    await session.executeWrite(tx => tx.run(`
+      CREATE CONSTRAINT IF NOT EXISTS FOR (s:Skill)
+      REQUIRE s.name IS UNIQUE
+    `))
+
+    await session.executeWrite(tx => tx.run(`
+      CREATE CONSTRAINT IF NOT EXISTS FOR (p:Project)
+      REQUIRE p.name IS UNIQUE
+    `))
+
+    console.log('✅ Schema setup completed')
   } catch (error) {
-    console.error('Failed to setup schema:', error);
-    process.exit(1);
+    console.error('❌ Schema setup failed:', error)
+    throw error
+  } finally {
+    await session.close()
   }
+}
+
+// Run setup if this file is executed directly
+if (require.main === module) {
+  void setupSchema().catch((error) => {
+    console.error('Schema setup failed:', error)
+    process.exit(1)
+  })
 }
