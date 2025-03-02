@@ -45,6 +45,13 @@ export function Sidebar() {
           <Users2 className="inline-block mr-2" size={20} />
           Team Collaboration
         </Link>
+        <Link
+          href="/test"
+          className="block px-6 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+        >
+          <Network className="inline-block mr-2" size={20} />
+          Team Collaboration
+        </Link>
       </nav>
     </div>
   )
