@@ -16,6 +16,7 @@ async function applyMigrations() {
     const cypher = fs.readFileSync(filePath, 'utf-8');
     console.log(`Applying migration: ${file}`);
     await session.run(cypher);
+    
   }
 
   await session.close();
