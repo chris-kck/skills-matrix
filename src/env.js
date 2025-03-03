@@ -10,7 +10,7 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    NEO4J_URI: z.string().default("localhost:7687"),
+    NEO4J_URI: z.string().default("neo4j://localhost:7687"),
     NEO4J_USER: z.string().default("neo4j"),
     NEO4J_PASSWORD: z.string().default("password")
   },

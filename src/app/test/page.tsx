@@ -60,6 +60,10 @@ type FormSkill = {
   name: string
   category: string
   description: string
+  ring?: string
+  quadrant?: string
+  featured?: boolean
+  tags?: string[]
 }
 
 type FormEmployee = {
@@ -77,10 +81,19 @@ type SkillAssignment = {
 
 export default function TestPage() {
   // Form states
-  const [newSkill, setNewSkill] = useState<FormSkill>({ name: '', category: '', description: '' })
+  const [newSkill, setNewSkill] = useState<FormSkill>({ 
+    name: '', 
+    category: '', 
+    description: '', 
+    ring: 'trial', 
+    quadrant: 'tools-and-techniques', 
+    featured: false, 
+    tags: [] 
+  })
   const [newEmployee, setNewEmployee] = useState<FormEmployee>({ name: '', role: '', email: '', department: '' })
   const [skillAssignment, setSkillAssignment] = useState<SkillAssignment>({ employeeId: '', skillId: '', level: 0 })
   const [graphDataState, setGraphDataState] = useState<GraphData>({ nodes: [], links: [] })
+  const [tagInput, setTagInput] = useState<string>('')
 
   // Queries
   const { data: skills, refetch: refetchSkills } = api.skills.getAll.useQuery()
@@ -140,7 +153,16 @@ export default function TestPage() {
             <form className="space-y-4" onSubmit={(e) => {
               e.preventDefault()
               createSkill.mutate(newSkill)
-              setNewSkill({ name: '', category: '', description: '' })
+              setNewSkill({ 
+                name: '', 
+                category: '', 
+                description: '', 
+                ring: 'trial', 
+                quadrant: 'tools-and-techniques', 
+                featured: false, 
+                tags: [] 
+              })
+              setTagInput('')
             }}>
               <div>
                 <Label>Name</Label>
@@ -162,6 +184,99 @@ export default function TestPage() {
                   value={newSkill.description} 
                   onChange={(e) => setNewSkill(prev => ({ ...prev, description: e.target.value }))}
                 />
+              </div>
+              <div>
+                <Label>Ring</Label>
+                <Select 
+                  value={newSkill.ring} 
+                  onValueChange={(value) => setNewSkill(prev => ({ ...prev, ring: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select ring" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="adopt">Adopt</SelectItem>
+                    <SelectItem value="trial">Trial</SelectItem>
+                    <SelectItem value="assess">Assess</SelectItem>
+                    <SelectItem value="hold">Hold</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Quadrant</Label>
+                <Select 
+                  value={newSkill.quadrant} 
+                  onValueChange={(value) => setNewSkill(prev => ({ ...prev, quadrant: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select quadrant" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tools-and-techniques">Tools & Techniques</SelectItem>
+                    <SelectItem value="platforms">Platforms</SelectItem>
+                    <SelectItem value="languages">Languages</SelectItem>
+                    <SelectItem value="frameworks">Frameworks</SelectItem>
+                    <SelectItem value="libraries">Libraries</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Featured</Label>
+                <div className="flex items-center space-x-2 mt-2">
+                  <input 
+                    type="checkbox" 
+                    id="featured" 
+                    checked={newSkill.featured} 
+                    onChange={(e) => setNewSkill(prev => ({ ...prev, featured: e.target.checked }))}
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  />
+                  <label htmlFor="featured" className="text-sm text-gray-700">Mark as featured</label>
+                </div>
+              </div>
+              <div>
+                <Label>Tags</Label>
+                <div className="flex space-x-2 mt-2">
+                  <Input 
+                    value={tagInput} 
+                    onChange={(e) => setTagInput(e.target.value)}
+                    placeholder="Add a tag"
+                  />
+                  <Button 
+                    type="button" 
+                    onClick={() => {
+                      if (tagInput.trim()) {
+                        setNewSkill(prev => ({ 
+                          ...prev, 
+                          tags: [...(prev.tags || []), tagInput.trim()] 
+                        }))
+                        setTagInput('')
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
+                </div>
+                {newSkill.tags && newSkill.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {newSkill.tags.map((tag, index) => (
+                      <div key={index} className="bg-gray-100 px-2 py-1 rounded-md flex items-center">
+                        <span className="text-sm">{tag}</span>
+                        <button 
+                          type="button"
+                          className="ml-1 text-gray-500 hover:text-gray-700"
+                          onClick={() => {
+                            setNewSkill(prev => ({
+                              ...prev,
+                              tags: prev.tags?.filter((_, i) => i !== index)
+                            }))
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               <Button type="submit">Add Skill</Button>
             </form>
@@ -290,7 +405,10 @@ export default function TestPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Description</TableHead>
+                  <TableHead>Ring</TableHead>
+                  <TableHead>Quadrant</TableHead>
+                  <TableHead>Featured</TableHead>
+                  <TableHead>Tags</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -298,7 +416,18 @@ export default function TestPage() {
                   <TableRow key={skill.name}>
                     <TableCell>{skill.name}</TableCell>
                     <TableCell>{skill.category}</TableCell>
-                    <TableCell>{skill.description}</TableCell>
+                    <TableCell>{skill.ring || '-'}</TableCell>
+                    <TableCell>{skill.quadrant || '-'}</TableCell>
+                    <TableCell>{skill.featured ? '✓' : '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {skill.tags?.map((tag, index) => (
+                          <span key={index} className="bg-gray-100 px-1 py-0.5 text-xs rounded">
+                            {tag}
+                          </span>
+                        )) || '-'}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -363,6 +492,123 @@ export default function TestPage() {
                 </div>
               )}
             </Suspense>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Technology Relationships */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Technology Relationships</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Source Technology</TableHead>
+                  <TableHead>Relationship</TableHead>
+                  <TableHead>Target Technology</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {skills?.flatMap(source => 
+                  skills
+                    .filter(target => 
+                      source.name !== target.name && 
+                      employees?.some(emp => 
+                        emp.skills.some(s => s.name === source.name) && 
+                        emp.skills.some(s => s.name === target.name)
+                      )
+                    )
+                    .map(target => (
+                      <TableRow key={`${source.name}-${target.name}`}>
+                        <TableCell className="font-medium">{source.name}</TableCell>
+                        <TableCell>Used together</TableCell>
+                        <TableCell>{target.name}</TableCell>
+                      </TableRow>
+                    ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Technology Quadrants */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Technology Quadrants</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            {['tools-and-techniques', 'platforms', 'languages', 'frameworks', 'libraries'].map(quadrant => (
+              <Card key={quadrant} className="overflow-hidden">
+                <CardHeader className="bg-slate-100 py-2">
+                  <CardTitle className="text-lg capitalize">{quadrant.replace(/-/g, ' ')}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="flex flex-wrap gap-2">
+                    {skills
+                      ?.filter(skill => skill.quadrant === quadrant)
+                      .map(skill => (
+                        <div 
+                          key={skill.name} 
+                          className={`px-2 py-1 rounded-full text-sm ${
+                            skill.ring === 'adopt' ? 'bg-green-100 text-green-800' :
+                            skill.ring === 'trial' ? 'bg-blue-100 text-blue-800' :
+                            skill.ring === 'assess' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          } ${skill.featured ? 'border-2 border-indigo-500' : ''}`}
+                        >
+                          {skill.name}
+                        </div>
+                      ))
+                    }
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Technology Adoption Rings */}
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Technology Adoption Rings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            {['adopt', 'trial', 'assess', 'hold'].map(ring => (
+              <Card key={ring} className="overflow-hidden">
+                <CardHeader className={`py-2 ${
+                  ring === 'adopt' ? 'bg-green-100' :
+                  ring === 'trial' ? 'bg-blue-100' :
+                  ring === 'assess' ? 'bg-yellow-100' :
+                  'bg-red-100'
+                }`}>
+                  <CardTitle className="text-lg capitalize">{ring}</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="flex flex-wrap gap-2">
+                    {skills
+                      ?.filter(skill => skill.ring === ring)
+                      .map(skill => (
+                        <div 
+                          key={skill.name} 
+                          className={`px-2 py-1 rounded-full text-sm bg-slate-100 ${
+                            skill.featured ? 'border-2 border-indigo-500' : ''
+                          }`}
+                        >
+                          {skill.name}
+                        </div>
+                      ))
+                    }
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>

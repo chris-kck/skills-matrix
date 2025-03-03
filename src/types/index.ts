@@ -4,6 +4,10 @@ export interface Skill {
   name: string
   category: string
   description?: string
+  ring?: string
+  quadrant?: string
+  featured?: boolean
+  tags?: string[]
   createdAt?: string
   updatedAt?: string
 }

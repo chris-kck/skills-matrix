@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "db:migrate:all && next build",
     "check": "next lint && tsc --noEmit",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
@@ -17,7 +17,10 @@
     "db:start": "./start-db.sh",
     "db:stop": "docker stop neo4j",
     "db:setup": "ts-node src/server/db/setup-schema.ts",
-    "db:migrate": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm src/server/db/migrate.ts"
+    "db:migrate": "tsx src/server/db/migrate.ts",
+    "db:migrate:ts": "tsx src/server/db/migrate.ts",
+    "db:migrate:cypher": "./migrate.js",
+    "db:migrate:all": "npm run db:migrate:ts && npm run db:migrate:cypher"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
@@ -54,6 +57,7 @@
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
     "@typescript-eslint/parser": "^8.1.0",
+    "dotenv": "^16.4.7",
     "eslint": "^8.57.0",
     "eslint-config-next": "^15.0.1",
     "jest": "^29.7.0",
@@ -65,6 +69,7 @@
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.19.3",
     "typescript": "^5.5.3"
   },
   "ct3aMetadata": {

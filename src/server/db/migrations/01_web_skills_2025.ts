@@ -1,4 +1,4 @@
-import { getDriver } from "~/lib/neo4j"
+import { getDriver } from "../../../lib/neo4j.js"
 
 const webSkills2025 = {
   "Frontend Frameworks": [

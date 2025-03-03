@@ -1,0 +1,372 @@
+{
+  "technologies": [
+    {
+      "title": "ADR",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": true,
+      "tags": ["Architecture", "Documentation"],
+      "description": "[ADR](https://adr.github.io/) is a justified design choice that addresses a functional or non-functional requirement that is architecturally significant. It allows for changes to architecture to be tracked over time to better tell the story of how a codebase changed over time.\n\nMOHARA uses ADRs to ensure that each codebase contains a timeline of the reasoning and considerations for each of its changes."
+    },
+    {
+      "title": "Apache Airflow",
+      "ring": "trial",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Data", "ETL", "Pipeline"],
+      "description": "[Apache Airflow](https://airflow.apache.org/) is an open-source platform for programmatically authoring, scheduling, and monitoring workflows. It is designed for orchestrating complex workflows using directed acyclic graphs (DAGs).\n\nAirflow is a mature technology that provides dynamic workflow generation, extensibility, and a rich UI. We have used it to manage various data pipelines and automated tasks."
+    },
+    {
+      "title": "Apollo GraphQL",
+      "ring": "adopt",
+      "quadrant": "libraries",
+      "featured": false,
+      "tags": ["API", "GraphQL", "Data"],
+      "description": "[Apollo GraphQL](https://www.apollographql.com/) is a comprehensive implementation of GraphQL that helps you manage data between the cloud and your UI. It includes a client for frontend applications and server implementations for various languages.\n\nMOHARA has adopted Apollo for projects that benefit from GraphQL's flexible data fetching, strong typing, and unified API layer. It works particularly well with our React and Node.js stack."
+    },
+    {
+      "title": "AWS",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": true,
+      "tags": ["Cloud", "Infrastructure", "DevOps"],
+      "description": "[Amazon Web Services (AWS)](https://aws.amazon.com/) is a comprehensive cloud computing platform offering over 200 fully featured services from data centers globally.\n\nMOHARA has adopted AWS as our primary cloud provider for enterprise-scale applications that require a wide range of services, high availability, and global reach. We regularly use services like EC2, S3, RDS, Lambda, and many others."
+    },
+    {
+      "title": "Chakra UI",
+      "ring": "trial",
+      "quadrant": "libraries",
+      "featured": false,
+      "tags": ["UI", "React", "Components"],
+      "description": "[Chakra UI](https://chakra-ui.com/) is a simple, modular, and accessible component library that gives you the building blocks to build React applications with speed.\n\nAt MOHARA, we're trialing Chakra UI for projects that need a comprehensive, accessible component system with a focus on developer experience. Its theming capabilities and composition patterns align well with our development practices."
+    },
+    {
+      "title": "Cloudflare",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["CDN", "Security", "Edge Computing"],
+      "description": "[Cloudflare](https://www.cloudflare.com/) is a global network designed to make everything you connect to the Internet secure, private, fast, and reliable.\n\nMOHARA has adopted Cloudflare for its CDN capabilities, DDoS protection, and DNS management. We're also exploring Cloudflare Workers for edge computing use cases on select projects."
+    },
+    {
+      "title": "Contentful",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["CMS", "Content", "Headless"],
+      "description": "[Contentful](https://www.contentful.com/) is a headless CMS that enables teams to unify content in a single hub and structure it for use in any digital channel.\n\nMOHARA has adopted Contentful for projects that require flexible content management, particularly for multi-channel publishing. Its API-first approach integrates well with our frontend frameworks."
+    },
+    {
+      "title": "Cypress",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["Testing", "E2E", "Automation"],
+      "description": "[Cypress](https://www.cypress.io/) is a next-generation front end testing tool built for the modern web. It enables fast, easy and reliable testing for anything that runs in a browser.\n\nMOHARA has adopted Cypress for end-to-end testing across our web applications. Its developer-friendly API, real-time reloading, and time travel debugging capabilities have significantly improved our testing processes."
+    },
+    {
+      "title": "dbt",
+      "ring": "trial",
+      "quadrant": "tools-and-techniques",
+      "featured": true,
+      "tags": ["Data", "Analytics", "SQL"],
+      "description": "[dbt (data build tool)](https://www.getdbt.com/) enables analytics engineers to transform data in their warehouses by writing modular SQL queries. It allows for version-controlled, tested, and documented data transformations.\n\nAt MOHARA, we're using dbt to create reliable data pipelines and transformations that follow software engineering best practices like CI/CD, testing, and documentation."
+    },
+    {
+      "title": "Docker",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": true,
+      "tags": ["DevOps", "Containers", "Infrastructure"],
+      "description": "[Docker](https://www.docker.com/) is a platform for developing, shipping, and running applications in containers. Containers package up code and all its dependencies so the application runs quickly and reliably from one computing environment to another.\n\nMOHARA has adopted Docker across many projects to ensure consistent development environments, simplified deployment, and improved scalability of applications."
+    },
+    {
+      "title": "Elasticsearch",
+      "ring": "trial",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Search", "Database", "Analytics"],
+      "description": "[Elasticsearch](https://www.elastic.co/elasticsearch/) is a distributed, RESTful search and analytics engine capable of addressing a growing number of use cases.\n\nMOHARA is trialing Elasticsearch for projects that require advanced search capabilities, log analysis, or complex data querying. It's particularly valuable for applications with large datasets that need real-time search functionality."
+    },
+    {
+      "title": "Express.js",
+      "ring": "adopt",
+      "quadrant": "frameworks",
+      "featured": false,
+      "tags": ["Backend", "Node.js", "Web"],
+      "description": "[Express.js](https://expressjs.com/) is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.\n\nMOHARA has adopted Express.js for simpler backend applications and microservices. While NestJS is our preferred framework for larger applications, Express remains valuable for lightweight services and rapid prototyping."
+    },
+    {
+      "title": "Feature Flags",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["Development", "Release", "Testing"],
+      "description": "Feature flags are a software development technique that allows teams to modify system behavior without changing code. They provide a way to toggle features on or off at runtime.\n\nMOHARA uses feature flags to implement continuous delivery, A/B testing, and gradual feature rollouts. They allow us to deploy code without exposing unfinished features to users and to quickly turn off problematic features without a full deployment."
+    },
+    {
+      "title": "Figma",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": true,
+      "tags": ["Design", "Collaboration", "UI/UX"],
+      "description": "[Figma](https://www.figma.com/) is a collaborative web application for interface design, with additional offline features enabled by desktop applications for macOS and Windows.\n\nMOHARA has adopted Figma as our primary design tool due to its real-time collaboration capabilities, powerful prototyping features, and strong component system. It has significantly improved our design workflow and collaboration between designers and developers."
+    },
+    {
+      "title": "Firebase",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": true,
+      "tags": ["Backend", "Mobile", "Database"],
+      "description": "[Firebase](https://firebase.google.com/) is a platform developed by Google for creating mobile and web applications. It provides tools and infrastructure designed to help developers build high-quality apps.\n\nMOHARA has adopted Firebase for many client projects due to its comprehensive suite of services like real-time database, authentication, cloud functions, and hosting. It allows us to build full-stack applications without managing server infrastructure."
+    },
+    {
+      "title": "Flutter",
+      "ring": "assess",
+      "quadrant": "frameworks",
+      "featured": false,
+      "tags": ["Mobile", "Cross-platform", "UI"],
+      "description": "[Flutter](https://flutter.dev/) is Google's UI toolkit for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.\n\nMOHARA is assessing Flutter for specific use cases where UI consistency across platforms is paramount. While React Native remains our primary cross-platform technology, Flutter shows promise for highly visual applications."
+    },
+    {
+      "title": "GitHub Actions",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["CI/CD", "DevOps", "Automation"],
+      "description": "[GitHub Actions](https://github.com/features/actions) is a CI/CD platform that allows you to automate your build, test, and deployment pipelines directly from GitHub repositories.\n\nMOHARA has adopted GitHub Actions for most of our continuous integration and deployment needs due to its tight integration with our source control, flexible workflow configuration, and strong ecosystem of reusable actions."
+    },
+    {
+      "title": "Go",
+      "ring": "trial",
+      "quadrant": "languages",
+      "featured": false,
+      "tags": ["Backend", "Performance", "Systems"],
+      "description": "[Go](https://golang.org/) (or Golang) is an open source programming language designed for building simple, reliable, and efficient software.\n\nMOHARA is trialing Go for specific use cases that require high performance and efficiency, particularly for microservices and backend systems with specific performance requirements."
+    },
+    {
+      "title": "GraphQL",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["API", "Query Language", "Data"],
+      "description": "[GraphQL](https://graphql.org/) is a query language for APIs and a runtime for fulfilling those queries with your existing data. It provides a complete and understandable description of the data in your API.\n\nMOHARA has adopted GraphQL for projects that benefit from flexible data fetching, strong typing, and reduced network overhead. It's especially valuable for applications with complex data requirements and multiple clients."
+    },
+    {
+      "title": "Jest",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["Testing", "JavaScript", "Unit Testing"],
+      "description": "[Jest](https://jestjs.io/) is a delightful JavaScript Testing Framework with a focus on simplicity. It works with TypeScript, Node, React, Angular, Vue and more.\n\nMOHARA has adopted Jest as our primary JavaScript testing framework across frontend and backend projects. Its speed, snapshot testing, and comprehensive mocking capabilities make it valuable for our test-driven development approach."
+    },
+    {
+      "title": "Kafka",
+      "ring": "assess",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Event Streaming", "Messaging", "Distributed Systems"],
+      "description": "[Apache Kafka](https://kafka.apache.org/) is an open-source distributed event streaming platform used for high-performance data pipelines, streaming analytics, data integration, and mission-critical applications.\n\nMOHARA is assessing Kafka for projects that require high-throughput, fault-tolerant message processing and event-driven architectures. It's showing promise for systems with complex integration requirements."
+    },
+    {
+      "title": "Kubernetes",
+      "ring": "trial",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Container Orchestration", "DevOps", "Infrastructure"],
+      "description": "[Kubernetes](https://kubernetes.io/) is an open-source container orchestration system for automating application deployment, scaling, and management.\n\nMOHARA is trialing Kubernetes for larger projects that require advanced deployment strategies, autoscaling, and container orchestration. While not needed for all projects, it provides significant benefits for complex, distributed applications."
+    },
+    {
+      "title": "MongoDB",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Database", "NoSQL", "Backend"],
+      "description": "[MongoDB](https://www.mongodb.com/) is a general purpose, document-based, distributed database built for modern application developers and for the cloud era.\n\nMOHARA has adopted MongoDB for projects that benefit from its flexible schema design, scalability, and document-oriented data model. It's particularly useful for applications with evolving data requirements and complex, nested data structures."
+    },
+    {
+      "title": "NestJS",
+      "ring": "adopt",
+      "quadrant": "frameworks",
+      "featured": true,
+      "tags": ["Backend", "TypeScript", "Node.js"],
+      "description": "[NestJS](https://nestjs.com/) is a progressive Node.js framework for building efficient, reliable, and scalable server-side applications. It uses TypeScript and combines elements of OOP, FP, and FRP.\n\nMOHARA has adopted NestJS as our primary backend framework for new Node.js applications due to its well-structured architecture, TypeScript integration, and comprehensive ecosystem."
+    },
+    {
+      "title": "Next.js",
+      "ring": "adopt",
+      "quadrant": "frameworks",
+      "featured": true,
+      "tags": ["Frontend", "React", "SSR"],
+      "description": "[Next.js](https://nextjs.org/) is a React framework that enables functionalities such as server-side rendering and static site generation. It provides a great developer experience with features like file-system routing and API routes.\n\nMOHARA has adopted Next.js for most new web projects due to its excellent performance characteristics, built-in optimizations, and improved developer experience."
+    },
+    {
+      "title": "nx",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": true,
+      "tags": ["Monorepo", "Build", "Development"],
+      "description": "[Nx](https://nx.dev/) is a set of extensible dev tools for monorepos. It provides tooling that helps you develop like Google, Facebook, and Microsoft.\n\nMOHARA has adopted Nx for managing larger projects with multiple applications and libraries. It has significantly improved our build performance and code sharing practices."
+    },
+    {
+      "title": "Playwright",
+      "ring": "trial",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["Testing", "E2E", "Automation"],
+      "description": "[Playwright](https://playwright.dev/) is a framework for web testing and automation that allows testing across all modern browsers.\n\nMOHARA is trialing Playwright as a potential alternative to Cypress for end-to-end testing. Its multi-browser support, mobile emulation, and powerful auto-wait capabilities show promise for improving our testing coverage."
+    },
+    {
+      "title": "PostgreSQL",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": true,
+      "tags": ["Database", "SQL", "Backend"],
+      "description": "[PostgreSQL](https://www.postgresql.org/) is a powerful, open source object-relational database system with over 30 years of active development. It has earned a strong reputation for reliability, feature robustness, and performance.\n\nMOHARA has adopted PostgreSQL as our primary relational database due to its adherence to standards, extensibility, and excellent handling of complex data types and operations."
+    },
+    {
+      "title": "pnpm",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["Package Manager", "JavaScript", "Development"],
+      "description": "[pnpm](https://pnpm.io/) is a fast, disk space efficient package manager for JavaScript. It creates a non-flat node_modules directory, which saves disk space and boosts installation speed.\n\nMOHARA has adopted pnpm for our JavaScript projects due to its performance benefits, strict dependency management, and excellent monorepo support."
+    },
+    {
+      "title": "Prisma",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": true,
+      "tags": ["ORM", "Database", "TypeScript"],
+      "description": "[Prisma](https://www.prisma.io/) is a next-generation ORM that consists of a schema definition language, data modeling tools, type-safe database client, and migrations system.\n\nMOHARA has adopted Prisma for new TypeScript projects due to its excellent developer experience, strong typing, and improved productivity compared to traditional ORMs."
+    },
+    {
+      "title": "Python",
+      "ring": "adopt",
+      "quadrant": "languages",
+      "featured": false,
+      "tags": ["Backend", "Data Science", "Scripting"],
+      "description": "[Python](https://www.python.org/) is an interpreted, high-level, general-purpose programming language with a design philosophy that emphasizes code readability.\n\nMOHARA has adopted Python for data science projects, automation scripts, and select backend services. Its extensive ecosystem of libraries, particularly in data science and machine learning, makes it valuable for specific use cases."
+    },
+    {
+      "title": "React",
+      "ring": "adopt",
+      "quadrant": "frameworks",
+      "featured": true,
+      "tags": ["Frontend", "UI", "JavaScript"],
+      "description": "[React](https://reactjs.org/) is a JavaScript library for building user interfaces, particularly single-page applications where UI updates are frequent and performance is critical.\n\nMOHARA has adopted React as our primary frontend library due to its component-based architecture, virtual DOM for performance, and extensive ecosystem. It forms the foundation of most of our web applications."
+    },
+    {
+      "title": "React Native",
+      "ring": "adopt",
+      "quadrant": "frameworks",
+      "featured": true,
+      "tags": ["Mobile", "Cross-platform", "JavaScript"],
+      "description": "[React Native](https://reactnative.dev/) is a framework for building native apps using React. It allows developers to create mobile applications for iOS and Android using a single codebase.\n\nMOHARA has adopted React Native for cross-platform mobile development due to its code reusability, performance close to native, and the ability to leverage our existing React knowledge."
+    },
+    {
+      "title": "React Query",
+      "ring": "adopt",
+      "quadrant": "libraries",
+      "featured": true,
+      "tags": ["React", "Data Fetching", "State Management"],
+      "description": "[React Query](https://tanstack.com/query/latest) (now TanStack Query) is a data-fetching and state management library for React applications. It simplifies fetching, caching, synchronizing, and updating server state.\n\nMOHARA has adopted React Query for our React applications to handle API calls more efficiently, reduce boilerplate code, and improve user experience through features like background refetching and optimistic updates."
+    },
+    {
+      "title": "Redis",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Database", "Caching", "Performance"],
+      "description": "[Redis](https://redis.io/) is an open source, in-memory data structure store used as a database, cache, message broker, and streaming engine.\n\nMOHARA has adopted Redis for caching, session management, and real-time applications that benefit from its speed and versatility. It's a key component in our performance optimization toolkit."
+    },
+    {
+      "title": "Remix",
+      "ring": "trial",
+      "quadrant": "frameworks",
+      "featured": false,
+      "tags": ["Frontend", "React", "Web"],
+      "description": "[Remix](https://remix.run/) is a full stack web framework that lets you focus on the user interface and work back through web standards to deliver a fast, slick, and resilient user experience.\n\nAt MOHARA, we're experimenting with Remix for projects that require excellent loading performance and nested routing capabilities. It's showing promise particularly for content-heavy applications."
+    },
+    {
+      "title": "Rust",
+      "ring": "assess",
+      "quadrant": "languages",
+      "featured": false,
+      "tags": ["Systems Programming", "Performance", "Safety"],
+      "description": "[Rust](https://www.rust-lang.org/) is a multi-paradigm programming language designed for performance and safety, especially safe concurrency.\n\nMOHARA is assessing Rust for specialized use cases that require high performance, memory safety, and reliability. While not yet in production, we see potential for performance-critical components and WebAssembly applications."
+    },
+    {
+      "title": "Sanity",
+      "ring": "trial",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["CMS", "Content", "Headless"],
+      "description": "[Sanity](https://www.sanity.io/) is a headless, real-time content management system and platform that manages content with structured schemas and real-time collaboration.\n\nMOHARA is trialing Sanity for content-heavy projects that benefit from its flexible content modeling, real-time capabilities, and powerful customization options. It shows particular promise for projects with complex content structures."
+    },
+    {
+      "title": "Storybook",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["UI", "Components", "Development"],
+      "description": "[Storybook](https://storybook.js.org/) is an open source tool for building UI components and pages in isolation. It streamlines UI development, testing, and documentation.\n\nMOHARA has adopted Storybook for developing and documenting UI components across our projects. It has improved our component reusability, collaboration between designers and developers, and frontend testing practices."
+    },
+    {
+      "title": "Supabase",
+      "ring": "trial",
+      "quadrant": "platforms",
+      "featured": true,
+      "tags": ["Backend", "Database", "Authentication"],
+      "description": "[Supabase](https://supabase.com/) is an open-source Firebase alternative providing all the backend services you need to build a product. It combines PostgreSQL, Auth, Storage, and more.\n\nMOHARA is currently trialing Supabase for projects that need rapid development of backend services. It's proving particularly valuable for startups and MVPs where development speed is critical."
+    },
+    {
+      "title": "Tailwind CSS",
+      "ring": "adopt",
+      "quadrant": "libraries",
+      "featured": true,
+      "tags": ["CSS", "Frontend", "Design"],
+      "description": "[Tailwind CSS](https://tailwindcss.com/) is a utility-first CSS framework that provides low-level utility classes to build custom designs without leaving your HTML.\n\nMOHARA has adopted Tailwind CSS for most new projects due to its ability to speed up the development process, maintain consistency across products, and facilitate collaboration between designers and developers."
+    },
+    {
+      "title": "Terraform",
+      "ring": "adopt",
+      "quadrant": "tools-and-techniques",
+      "featured": false,
+      "tags": ["Infrastructure as Code", "DevOps", "Cloud"],
+      "description": "[Terraform](https://www.terraform.io/) is an open-source infrastructure as code software tool that enables you to safely and predictably create, change, and improve infrastructure.\n\nMOHARA has adopted Terraform for managing cloud infrastructure across providers, ensuring consistency, reproducibility, and version control of our infrastructure configurations."
+    },
+    {
+      "title": "TypeScript",
+      "ring": "adopt",
+      "quadrant": "languages",
+      "featured": true,
+      "tags": ["JavaScript", "Static Typing", "Development"],
+      "description": "[TypeScript](https://www.typescriptlang.org/) is a strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.\n\nMOHARA has adopted TypeScript for all new JavaScript projects due to its ability to catch errors early, improve code documentation, and enhance developer productivity through better tooling and editor support."
+    },
+    {
+      "title": "Vercel",
+      "ring": "adopt",
+      "quadrant": "platforms",
+      "featured": true,
+      "tags": ["Hosting", "Deployment", "Frontend"],
+      "description": "[Vercel](https://vercel.com/) is a cloud platform for static sites and Serverless Functions that enables developers to deploy websites and web services that deploy instantly, scale automatically, and require no supervision.\n\nMOHARA has adopted Vercel for deploying frontend applications due to its excellent integration with frameworks like Next.js, simple deployment workflow, and powerful preview environments that facilitate collaboration and review."
+    },
+    {
+      "title": "Xata",
+      "ring": "assess",
+      "quadrant": "platforms",
+      "featured": false,
+      "tags": ["Database", "Serverless", "Cloud"],
+      "description": "[Xata](https://xata.io/) is a serverless database platform with built-in search, analytics, and AI features. It combines PostgreSQL compatibility with modern developer workflows.\n\nMOHARA is currently assessing Xata for projects that need both structured data storage and powerful search capabilities. Its branch-based workflow and schema migrations align well with our development practices."
+    },
+    {
+      "title": "Zod",
+      "ring": "adopt",
+      "quadrant": "libraries",
+      "featured": false,
+      "tags": ["Validation", "TypeScript", "Schema"],
+      "description": "[Zod](https://zod.dev/) is a TypeScript-first schema declaration and validation library. It allows you to create schemas for data validation and automatically infer TypeScript types from those schemas.\n\nMOHARA has adopted Zod across our TypeScript projects for runtime validation of data, especially at API boundaries. It improves type safety and reduces the gap between compile-time and runtime type checking."
+    }
+  ]
+}

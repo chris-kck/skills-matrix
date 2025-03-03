@@ -1,0 +1,11 @@
+MATCH (react:Skill {name: "React"})
+MATCH (nextjs:Skill {name: "Next.js"})
+MATCH (typescript:Skill {name: "TypeScript"})
+MATCH (vercel:Skill {name: "Vercel"})
+MATCH (docker:Skill {name: "Docker"})
+MATCH (aws:Skill {name: "AWS"})
+MERGE (react)-[:USED_BY]->(nextjs)
+MERGE (typescript)-[:ENHANCES]->(react)
+MERGE (nextjs)-[:DEPLOYED_ON]->(vercel)
+MERGE (docker)-[:DEPLOYED_ON]->(aws)
+MERGE (vercel)-[:RUNS_ON]->(aws); 

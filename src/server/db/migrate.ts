@@ -1,34 +1,43 @@
-import neo4j from 'neo4j-driver';
-import fs from 'fs';
-import path from 'path';
-import { env } from '../../../src/env.js';
+import { getDriver } from "../../lib/neo4j.js";
+import { seedWebSkills2025 } from "./migrations/01_web_skills_2025.js";
+import { mergeEmployeeTypes } from "./migrations/02_merge_employee_types.js";
+import { seedSkillsAndConnections } from "./migrations/03_seed_skills_and_connections.js";
 
-const driver = neo4j.driver(env.NEO4J_URI, neo4j.auth.basic(env.NEO4J_USER, env.NEO4J_PASSWORD));
-const session = driver.session();
-
-const migrationsDir = path.join(__dirname, '../../../migrations');
-
-async function applyMigrations() {
-  const files = fs.readdirSync(migrationsDir).sort();
-
-  for (const file of files) {
-    const filePath = path.join(migrationsDir, file);
-    const cypher = fs.readFileSync(filePath, 'utf-8');
-    console.log(`Applying migration: ${file}`);
-    await session.run(cypher);
+/**
+ * This script runs all migrations in the migrations directory
+ */
+async function migrate() {
+  console.log("🚀 Starting database migrations...");
+  
+  const driver = getDriver();
+  const session = driver.session();
+  
+  try {
+    // Run migrations in order
+    console.log("📚 Seeding web skills...");
+    await seedWebSkills2025();
     
+    console.log("👥 Merging employee types...");
+    await mergeEmployeeTypes();
+    
+    console.log("🔄 Seeding MOHARA Radar skills and connections...");
+    await seedSkillsAndConnections();
+    
+    console.log("✅ All migrations completed successfully");
+  } catch (error) {
+    console.error("❌ Migration failed:", error);
+    process.exit(1);
+  } finally {
+    await session.close();
+    await driver.close();
+    console.log("🔌 Database connection closed");
   }
-
-  await session.close();
-  await driver.close();
 }
 
-applyMigrations()
-  .then(() => {
-    console.log('Migrations applied successfully');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('Error applying migrations:', error);
-    process.exit(1);
-  });
+// Run migrations if this file is executed directly
+migrate().catch((error) => {
+  console.error("❌ Migration failed:", error);
+  process.exit(1);
+});
+
+export { migrate }; 

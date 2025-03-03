@@ -1,4 +1,4 @@
-import { getDriver } from "~/lib/neo4j"
+import { getDriver } from "../../../lib/neo4j.js"
 
 export async function mergeEmployeeTypes() {
   const driver = getDriver()
@@ -11,9 +11,9 @@ export async function mergeEmployeeTypes() {
         MATCH (eng:Engineer)
         MERGE (emp:Employee {
           name: eng.name,
-          role: eng.role,
+          role: COALESCE(eng.role, 'Engineer'),
           email: eng.email,
-          department: eng.department
+          department: COALESCE(eng.department, 'Engineering')
         })
         WITH eng, emp
         // Transfer all relationships from Engineer to Employee
@@ -42,7 +42,7 @@ export async function mergeEmployeeTypes() {
     await session.executeWrite(tx =>
       tx.run(`
         MATCH (e:Employee)
-        WHERE NOT EXISTS(e.roleType)
+        WHERE e.roleType IS NULL
         SET e.roleType = 'technical'
       `)
     )

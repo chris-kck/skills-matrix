@@ -1,5 +1,6 @@
-import { seedWebSkills2025 } from "./01_web_skills_2025"
-import { mergeEmployeeTypes } from "./02_merge_employee_types"
+import { seedWebSkills2025 } from "./01_web_skills_2025.js"
+import { mergeEmployeeTypes } from "./02_merge_employee_types.js"
+import { seedSkillsAndConnections } from "./03_seed_skills_and_connections.js"
 
 export async function runMigrations() {
   try {
@@ -12,15 +13,19 @@ export async function runMigrations() {
     console.log("👥 Merging employee types...")
     await mergeEmployeeTypes()
     
+    console.log("🔄 Seeding MOHARA Radar skills and connections...")
+    await seedSkillsAndConnections()
+    
     console.log("✨ All migrations completed successfully")
+    return true
   } catch (error) {
     console.error("❌ Migration failed:", error)
-    process.exit(1)
+    throw error
   }
 }
 
 // Run migrations if this file is executed directly
-if (require.main === module) {
+if (import.meta.url.endsWith('index.js')) {
   void runMigrations().catch((error) => {
     console.error("❌ Migration failed:", error)
     process.exit(1)
