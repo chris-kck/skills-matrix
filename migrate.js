@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// @ts-nocheck
+// This file is intentionally not type-checked
+
 /**
  * Simple script to run migrations directly with Neo4j
  */

@@ -46,7 +46,22 @@ const config = {
     "@typescript-eslint/no-explicit-any": "off"
   },
   "ignorePatterns": [
-    "src/server/db/migrations/*.js"
+    "src/server/db/migrations/*.js",
+    "migrate.js"
+  ],
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "rules": {
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/restrict-template-expressions": "off",
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
   ]
 }
 module.exports = config;

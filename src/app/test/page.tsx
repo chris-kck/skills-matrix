@@ -417,7 +417,7 @@ export default function TestPage() {
                     <TableCell>{skill.name}</TableCell>
                     <TableCell>{skill.category}</TableCell>
                     <TableCell>{skill.ring || '-'}</TableCell>
-                    <TableCell>{skill.quadrant || '-'}</TableCell>
+                    <TableCell>{skill.quadrant ?? '-'}</TableCell>
                     <TableCell>{skill.featured ? '✓' : '-'}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
