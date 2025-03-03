@@ -247,7 +247,7 @@ export default function TestPage() {
                       if (tagInput.trim()) {
                         setNewSkill(prev => ({ 
                           ...prev, 
-                          tags: [...(prev.tags || []), tagInput.trim()] 
+                          tags: [...(prev.tags ?? []), tagInput.trim()] 
                         }))
                         setTagInput('')
                       }
@@ -416,7 +416,7 @@ export default function TestPage() {
                   <TableRow key={skill.name}>
                     <TableCell>{skill.name}</TableCell>
                     <TableCell>{skill.category}</TableCell>
-                    <TableCell>{skill.ring || '-'}</TableCell>
+                    <TableCell>{skill.ring ?? '-'}</TableCell>
                     <TableCell>{skill.quadrant ?? '-'}</TableCell>
                     <TableCell>{skill.featured ? '✓' : '-'}</TableCell>
                     <TableCell>
@@ -425,7 +425,7 @@ export default function TestPage() {
                           <span key={index} className="bg-gray-100 px-1 py-0.5 text-xs rounded">
                             {tag}
                           </span>
-                        )) || '-'}
+                        )) ?? '-'}
                       </div>
                     </TableCell>
                   </TableRow>
