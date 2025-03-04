@@ -4,37 +4,19 @@ import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
 import { Progress } from "~/components/ui/progress"
-
-type SkillLevels = Record<string, number>
-
-interface Employee {
-  name: string
-  currentSkills: SkillLevels
-  targetSkills: SkillLevels
-}
-
-const employees: Employee[] = [
-  {
-    name: "Alice Johnson",
-    currentSkills: { React: 90, TypeScript: 85, GraphQL: 70 },
-    targetSkills: { React: 95, TypeScript: 90, GraphQL: 85, NextJS: 80 },
-  },
-  {
-    name: "Bob Smith",
-    currentSkills: { Python: 85, SQL: 90, Docker: 75 },
-    targetSkills: { Python: 90, SQL: 95, Docker: 85, Kubernetes: 80 },
-  },
-]
+import { api } from "~/trpc/react"
 
 export default function SkillGaps() {
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(employees[0] ?? null)
+  const { data: employees, isLoading } = api.employees.getAll.useQuery()
+  const [selectedEmployeeEmail, setSelectedEmployeeEmail] = useState<string>("")
 
-  const handleEmployeeChange = (value: string) => {
-    const employee = employees.find((e) => e.name === value)
-    setSelectedEmployee(employee ?? null)
+  const selectedEmployee = employees?.find(e => e.email === selectedEmployeeEmail)
+
+  if (isLoading) {
+    return <div>Loading...</div>
   }
 
-  if (employees.length === 0) {
+  if (!employees || employees.length === 0) {
     return (
       <div>
         <h1 className="text-3xl font-bold mb-6">Skill Gaps and Learning Paths</h1>
@@ -43,16 +25,21 @@ export default function SkillGaps() {
     )
   }
 
+  // Set initial selected employee if none selected
+  if (!selectedEmployeeEmail && employees.length > 0) {
+    setSelectedEmployeeEmail(employees[0].email)
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6">Skill Gaps and Learning Paths</h1>
-      <Select onValueChange={handleEmployeeChange}>
+      <Select value={selectedEmployeeEmail} onValueChange={setSelectedEmployeeEmail}>
         <SelectTrigger className="w-[280px] mb-6">
           <SelectValue placeholder="Select an employee" />
         </SelectTrigger>
         <SelectContent>
           {employees.map((employee) => (
-            <SelectItem key={employee.name} value={employee.name}>
+            <SelectItem key={employee.email} value={employee.email}>
               {employee.name}
             </SelectItem>
           ))}
@@ -64,27 +51,40 @@ export default function SkillGaps() {
             <CardTitle>{selectedEmployee.name}&apos;s Skill Gaps</CardTitle>
           </CardHeader>
           <CardContent>
-            {Object.entries(selectedEmployee.targetSkills).map(([skill, targetLevel]) => {
-              const currentLevel = selectedEmployee.currentSkills[skill] ?? 0
-              const gap = targetLevel - currentLevel
+            {selectedEmployee.skills.map((skill) => {
+              const targetLevel = skill.ring === 'adopt' ? 90 :
+                                skill.ring === 'trial' ? 70 :
+                                skill.ring === 'assess' ? 50 : 30
+              const gap = targetLevel - skill.level
               return (
-                <div key={skill} className="mb-4">
+                <div key={skill.name} className="mb-4">
                   <div className="flex justify-between mb-1">
-                    <span>{skill}</span>
+                    <span>{skill.name}</span>
                     <span>
-                      {currentLevel}% / {targetLevel}%
+                      {skill.level}% / {targetLevel}%
                     </span>
                   </div>
-                  <Progress value={currentLevel} max={targetLevel} className="w-full" />
+                  <Progress value={skill.level} max={targetLevel} className="w-full" />
                   {gap > 0 && (
-                    <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">Gap: {gap}% - Recommended for learning</p>
+                    <p className="text-sm text-gray-500 mt-1 dark:text-gray-400">
+                      Gap: {gap}% - {gap > 20 ? 'High priority' : 'Low priority'} for learning
+                    </p>
                   )}
                 </div>
               )
             })}
+            {selectedEmployee.skills.length === 0 && (
+              <p className="text-sm text-gray-500">No skills assigned yet.</p>
+            )}
           </CardContent>
         </Card>
       )}
+      <div className="mt-8 p-4 bg-gray-50 rounded-md">
+        <p className="text-sm text-gray-600">
+          <strong>Note:</strong> In future updates, this page will be enhanced to compare individual skills with project requirements. 
+          The top section shows individual skill gaps, while the bottom section will display aggregated skill gaps per project.
+        </p>
+      </div>
     </div>
   )
 }

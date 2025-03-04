@@ -16,6 +16,7 @@ import {
 } from "~/components/ui/table"
 import { Label } from "~/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select"
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 // Import ForceGraph2D dynamically to avoid SSR issues
 const ForceGraph2D = dynamic(() => import("react-force-graph-2d").catch(err => {
@@ -95,6 +96,26 @@ export default function TestPage() {
   const [graphDataState, setGraphDataState] = useState<GraphData>({ nodes: [], links: [] })
   const [tagInput, setTagInput] = useState<string>('')
 
+  // Section collapse states
+  const [sectionsCollapsed, setSectionsCollapsed] = useState({
+    skillsForm: true,
+    employeeForm: true,
+    skillAssignment: true,
+    dataTables: true,
+    skillsGraph: true,
+    techRelationships: true,
+    techQuadrants: true,
+    techRings: true,
+  })
+
+  // Toggle section collapse
+  const toggleSection = (section: keyof typeof sectionsCollapsed) => {
+    setSectionsCollapsed(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }
+
   // Queries
   const { data: skills, refetch: refetchSkills } = api.skills.getAll.useQuery()
   const { data: employees, refetch: refetchEmployees } = api.employees.getAll.useQuery()
@@ -143,12 +164,18 @@ export default function TestPage() {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        {/* Skills Form */}
-        <Card>
-          <CardHeader>
+      {/* Skills Form */}
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('skillsForm')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.skillsForm ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
             <CardTitle>Add Skill</CardTitle>
-          </CardHeader>
+          </div>
+        </CardHeader>
+        {!sectionsCollapsed.skillsForm && (
           <CardContent>
             <form className="space-y-4" onSubmit={(e) => {
               e.preventDefault()
@@ -281,13 +308,21 @@ export default function TestPage() {
               <Button type="submit">Add Skill</Button>
             </form>
           </CardContent>
-        </Card>
+        )}
+      </Card>
 
-        {/* Employee Form */}
-        <Card>
-          <CardHeader>
+      {/* Employee Form */}
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('employeeForm')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.employeeForm ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
             <CardTitle>Add Employee</CardTitle>
-          </CardHeader>
+          </div>
+        </CardHeader>
+        {!sectionsCollapsed.employeeForm && (
           <CardContent>
             <form className="space-y-4" onSubmit={(e) => {
               e.preventDefault()
@@ -326,291 +361,361 @@ export default function TestPage() {
               <Button type="submit">Add Employee</Button>
             </form>
           </CardContent>
-        </Card>
-      </div>
+        )}
+      </Card>
 
       {/* Skill Assignment Form */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Assign Skill to Employee</CardTitle>
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('skillAssignment')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.skillAssignment ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
+            <CardTitle>Assign Skill to Employee</CardTitle>
+          </div>
         </CardHeader>
-        <CardContent>
-          <form className="flex gap-4 items-end" onSubmit={(e) => {
-            e.preventDefault()
-            if (skillAssignment.employeeId && skillAssignment.skillId) {
-              addSkillToEmployee.mutate(skillAssignment)
-              setSkillAssignment({ employeeId: '', skillId: '', level: 0 })
-            }
-          }}>
-            <div className="flex-1">
-              <Label>Employee</Label>
-              <Select 
-                value={skillAssignment.employeeId}
-                onValueChange={(value) => setSkillAssignment(prev => ({ ...prev, employeeId: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees?.map((emp) => (
-                    <SelectItem key={emp.email} value={emp.email}>
-                      {emp.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1">
-              <Label>Skill</Label>
-              <Select
-                value={skillAssignment.skillId}
-                onValueChange={(value) => setSkillAssignment(prev => ({ ...prev, skillId: value }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select skill" />
-                </SelectTrigger>
-                <SelectContent>
-                  {skills?.map((skill) => (
-                    <SelectItem key={skill.name} value={skill.name}>
-                      {skill.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex-1">
-              <Label>Level (0-100)</Label>
-              <Input 
-                type="number"
-                min={0}
-                max={100}
-                value={skillAssignment.level} 
-                onChange={(e) => setSkillAssignment(prev => ({ ...prev, level: parseInt(e.target.value) }))}
-              />
-            </div>
-            <Button type="submit">Assign Skill</Button>
-          </form>
-        </CardContent>
+        {!sectionsCollapsed.skillAssignment && (
+          <CardContent>
+            <form className="flex gap-4 items-end" onSubmit={(e) => {
+              e.preventDefault()
+              if (skillAssignment.employeeId && skillAssignment.skillId) {
+                addSkillToEmployee.mutate(skillAssignment)
+                setSkillAssignment({ employeeId: '', skillId: '', level: 0 })
+              }
+            }}>
+              <div className="flex-1">
+                <Label>Employee</Label>
+                <Select 
+                  value={skillAssignment.employeeId}
+                  onValueChange={(value) => setSkillAssignment(prev => ({ ...prev, employeeId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select employee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employees?.map((emp) => (
+                      <SelectItem key={emp.email} value={emp.email}>
+                        {emp.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <Label>Skill</Label>
+                <Select
+                  value={skillAssignment.skillId}
+                  onValueChange={(value) => setSkillAssignment(prev => ({ ...prev, skillId: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select skill" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {skills?.map((skill) => (
+                      <SelectItem key={skill.name} value={skill.name}>
+                        {skill.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-1">
+                <Label>Level (0-100)</Label>
+                <Input 
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={skillAssignment.level} 
+                  onChange={(e) => setSkillAssignment(prev => ({ ...prev, level: parseInt(e.target.value) }))}
+                />
+              </div>
+              <Button type="submit">Assign Skill</Button>
+            </form>
+          </CardContent>
+        )}
       </Card>
 
       {/* Data Tables */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Skills</CardTitle>
-          </CardHeader>
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('dataTables')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.dataTables ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
+            <CardTitle>Data Tables</CardTitle>
+          </div>
+        </CardHeader>
+        {!sectionsCollapsed.dataTables && (
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Ring</TableHead>
-                  <TableHead>Quadrant</TableHead>
-                  <TableHead>Featured</TableHead>
-                  <TableHead>Tags</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {skills?.map((skill) => (
-                  <TableRow key={skill.name}>
-                    <TableCell>{skill.name}</TableCell>
-                    <TableCell>{skill.category}</TableCell>
-                    <TableCell>{skill.ring ?? '-'}</TableCell>
-                    <TableCell>{skill.quadrant ?? '-'}</TableCell>
-                    <TableCell>{skill.featured ? '✓' : '-'}</TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {skill.tags?.map((tag, index) => (
-                          <span key={index} className="bg-gray-100 px-1 py-0.5 text-xs rounded">
-                            {tag}
-                          </span>
-                        )) ?? '-'}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Skills</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Category</TableHead>
+                        <TableHead>Ring</TableHead>
+                        <TableHead>Quadrant</TableHead>
+                        <TableHead>Featured</TableHead>
+                        <TableHead>Tags</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {skills?.map((skill) => (
+                        <TableRow key={skill.name}>
+                          <TableCell>{skill.name}</TableCell>
+                          <TableCell>{skill.category}</TableCell>
+                          <TableCell>{skill.ring ?? '-'}</TableCell>
+                          <TableCell>{skill.quadrant ?? '-'}</TableCell>
+                          <TableCell>{skill.featured ? '✓' : '-'}</TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {skill.tags?.map((tag, index) => (
+                                <span key={index} className="bg-gray-100 px-1 py-0.5 text-xs rounded">
+                                  {tag}
+                                </span>
+                              )) ?? '-'}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Employees</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Skills</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {employees?.map((emp) => (
-                  <TableRow key={emp.email}>
-                    <TableCell>{emp.name}</TableCell>
-                    <TableCell>{emp.role}</TableCell>
-                    <TableCell>{emp.email}</TableCell>
-                    <TableCell>
-                      {emp.skills.map(skill => 
-                        `${skill.name} (${skill.level}%)`
-                      ).join(', ')}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Employees</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Skills</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {employees?.map((emp) => (
+                        <TableRow key={emp.email}>
+                          <TableCell>{emp.name}</TableCell>
+                          <TableCell>{emp.role}</TableCell>
+                          <TableCell>{emp.email}</TableCell>
+                          <TableCell>
+                            {emp.skills.map(skill => 
+                              `${skill.name} (${skill.level}%)`
+                            ).join(', ')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
           </CardContent>
-        </Card>
-      </div>
+        )}
+      </Card>
 
       {/* Skills Graph */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Skills Graph</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div style={{ height: '600px' }}>
-            <Suspense fallback={<div className="flex items-center justify-center h-full bg-gray-100 rounded-md">Loading graph...</div>}>
-              {graphDataState.nodes.length > 0 ? (
-                <ForceGraph2D 
-                  graphData={graphDataState}
-                  nodeLabel="name"
-                  nodeAutoColorBy="group"
-                  linkDirectionalParticles={2}
-                  linkLabel="label"
-                  linkWidth={link => (link.value as number) / 20}
-                  linkDirectionalParticleWidth={link => (link.value as number) / 20}
-                />
-              ) : (
-                <div className="flex items-center justify-center h-full bg-gray-100 rounded-md">
-                  No data available for visualization
-                </div>
-              )}
-            </Suspense>
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('skillsGraph')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.skillsGraph ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
+            <CardTitle>Skills Graph</CardTitle>
           </div>
-        </CardContent>
+        </CardHeader>
+        {!sectionsCollapsed.skillsGraph && (
+          <CardContent>
+            <div className="flex flex-col h-[600px]">
+              <div className="flex-grow">
+                <Suspense fallback={<div className="flex items-center justify-center h-full bg-gray-100 rounded-md">Loading graph...</div>}>
+                  {graphDataState.nodes.length > 0 ? (
+                    <ForceGraph2D 
+                      graphData={graphDataState}
+                      nodeLabel="name"
+                      nodeAutoColorBy="group"
+                      linkDirectionalParticles={2}
+                      linkLabel="label"
+                      linkWidth={link => (link.value as number) / 20}
+                      linkDirectionalParticleWidth={link => (link.value as number) / 20}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full bg-gray-100 rounded-md">
+                      No data available for visualization
+                    </div>
+                  )}
+                </Suspense>
+              </div>
+              <div className="mt-4 p-4 bg-gray-50 rounded-md">
+                <h3 className="text-sm font-semibold mb-2">Legend</h3>
+                <div className="flex gap-4">
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
+                    <span className="text-sm">Employees</span>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="w-4 h-4 rounded-full bg-green-500 mr-2"></div>
+                    <span className="text-sm">Skills</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Technology Relationships */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Technology Relationships</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Source Technology</TableHead>
-                  <TableHead>Relationship</TableHead>
-                  <TableHead>Target Technology</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {skills?.flatMap(source => 
-                  skills
-                    .filter(target => 
-                      source.name !== target.name && 
-                      employees?.some(emp => 
-                        emp.skills.some(s => s.name === source.name) && 
-                        emp.skills.some(s => s.name === target.name)
-                      )
-                    )
-                    .map(target => (
-                      <TableRow key={`${source.name}-${target.name}`}>
-                        <TableCell className="font-medium">{source.name}</TableCell>
-                        <TableCell>Used together</TableCell>
-                        <TableCell>{target.name}</TableCell>
-                      </TableRow>
-                    ))
-                )}
-              </TableBody>
-            </Table>
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('techRelationships')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.techRelationships ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
+            <CardTitle>Technology Relationships</CardTitle>
           </div>
-        </CardContent>
+        </CardHeader>
+        {!sectionsCollapsed.techRelationships && (
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Source Technology</TableHead>
+                    <TableHead>Relationship</TableHead>
+                    <TableHead>Target Technology</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {skills?.flatMap(source => 
+                    skills
+                      .filter(target => 
+                        source.name !== target.name && 
+                        employees?.some(emp => 
+                          emp.skills.some(s => s.name === source.name) && 
+                          emp.skills.some(s => s.name === target.name)
+                        )
+                      )
+                      .map(target => (
+                        <TableRow key={`${source.name}-${target.name}`}>
+                          <TableCell className="font-medium">{source.name}</TableCell>
+                          <TableCell>Used together</TableCell>
+                          <TableCell>{target.name}</TableCell>
+                        </TableRow>
+                      ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Technology Quadrants */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Technology Quadrants</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            {['tools-and-techniques', 'platforms', 'languages', 'frameworks', 'libraries'].map(quadrant => (
-              <Card key={quadrant} className="overflow-hidden">
-                <CardHeader className="bg-slate-100 py-2">
-                  <CardTitle className="text-lg capitalize">{quadrant.replace(/-/g, ' ')}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="flex flex-wrap gap-2">
-                    {skills
-                      ?.filter(skill => skill.quadrant === quadrant)
-                      .map(skill => (
-                        <div 
-                          key={skill.name} 
-                          className={`px-2 py-1 rounded-full text-sm ${
-                            skill.ring === 'adopt' ? 'bg-green-100 text-green-800' :
-                            skill.ring === 'trial' ? 'bg-blue-100 text-blue-800' :
-                            skill.ring === 'assess' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          } ${skill.featured ? 'border-2 border-indigo-500' : ''}`}
-                        >
-                          {skill.name}
-                        </div>
-                      ))
-                    }
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('techQuadrants')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.techQuadrants ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
+            <CardTitle>Technology Quadrants</CardTitle>
           </div>
-        </CardContent>
+        </CardHeader>
+        {!sectionsCollapsed.techQuadrants && (
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              {['tools-and-techniques', 'platforms', 'languages', 'frameworks', 'libraries'].map(quadrant => (
+                <Card key={quadrant} className="overflow-hidden">
+                  <CardHeader className="bg-slate-100 py-2">
+                    <CardTitle className="text-lg capitalize">{quadrant.replace(/-/g, ' ')}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap gap-2">
+                      {skills
+                        ?.filter(skill => skill.quadrant === quadrant)
+                        .map(skill => (
+                          <div 
+                            key={skill.name} 
+                            className={`px-2 py-1 rounded-full text-sm ${
+                              skill.ring === 'adopt' ? 'bg-green-100 text-green-800' :
+                              skill.ring === 'trial' ? 'bg-blue-100 text-blue-800' :
+                              skill.ring === 'assess' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            } ${skill.featured ? 'border-2 border-indigo-500' : ''}`}
+                          >
+                            {skill.name}
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        )}
       </Card>
 
       {/* Technology Adoption Rings */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Technology Adoption Rings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            {['adopt', 'trial', 'assess', 'hold'].map(ring => (
-              <Card key={ring} className="overflow-hidden">
-                <CardHeader className={`py-2 ${
-                  ring === 'adopt' ? 'bg-green-100' :
-                  ring === 'trial' ? 'bg-blue-100' :
-                  ring === 'assess' ? 'bg-yellow-100' :
-                  'bg-red-100'
-                }`}>
-                  <CardTitle className="text-lg capitalize">{ring}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <div className="flex flex-wrap gap-2">
-                    {skills
-                      ?.filter(skill => skill.ring === ring)
-                      .map(skill => (
-                        <div 
-                          key={skill.name} 
-                          className={`px-2 py-1 rounded-full text-sm bg-slate-100 ${
-                            skill.featured ? 'border-2 border-indigo-500' : ''
-                          }`}
-                        >
-                          {skill.name}
-                        </div>
-                      ))
-                    }
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      <Card className="mb-4">
+        <CardHeader 
+          className="cursor-pointer hover:bg-gray-50"
+          onClick={() => toggleSection('techRings')}
+        >
+          <div className="flex items-center">
+            {sectionsCollapsed.techRings ? <ChevronRight className="w-5 h-5 mr-2" /> : <ChevronDown className="w-5 h-5 mr-2" />}
+            <CardTitle>Technology Adoption Rings</CardTitle>
           </div>
-        </CardContent>
+        </CardHeader>
+        {!sectionsCollapsed.techRings && (
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              {['adopt', 'trial', 'assess', 'hold'].map(ring => (
+                <Card key={ring} className="overflow-hidden">
+                  <CardHeader className={`py-2 ${
+                    ring === 'adopt' ? 'bg-green-100' :
+                    ring === 'trial' ? 'bg-blue-100' :
+                    ring === 'assess' ? 'bg-yellow-100' :
+                    'bg-red-100'
+                  }`}>
+                    <CardTitle className="text-lg capitalize">{ring}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="flex flex-wrap gap-2">
+                      {skills
+                        ?.filter(skill => skill.ring === ring)
+                        .map(skill => (
+                          <div 
+                            key={skill.name} 
+                            className={`px-2 py-1 rounded-full text-sm bg-slate-100 ${
+                              skill.featured ? 'border-2 border-indigo-500' : ''
+                            }`}
+                          >
+                            {skill.name}
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        )}
       </Card>
     </div>
   )
