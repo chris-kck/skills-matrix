@@ -54,7 +54,19 @@ export default function TeamCollaboration() {
               nodeAutoColorBy="team"
               linkDirectionalParticles={2}
               linkLabel="sharedSkills"
+              nodeVal={8}
+              linkWidth={link => (link.strength as number) / 20}
+              linkDirectionalParticleWidth={link => (link.strength as number) / 20}
             />
+            <div className="mt-4 p-4 bg-gray-50 rounded-md">
+              <h3 className="text-sm font-semibold mb-2">Legend</h3>
+              <div className="flex gap-4">
+                <div className="flex items-center">
+                  <div className="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
+                  <span className="text-sm">Team Members</span>
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
